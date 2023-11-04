@@ -1,5 +1,5 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import { usuarioExistente } from "src/services/usuarios";
+import { logar as logarService } from "src/services/usuarios";
 import { Usuario } from 'src/types/usuario';
 import uuid from "react-native-uuid";
 import server from 'assets/server';
@@ -24,8 +24,7 @@ const usuarioSlice = createSlice({
   name: "usuario",
   reducers: {
     logar: (state, action: PayloadAction<LoginPayload>) => {
-      const usuarioEncontrado = usuarioExistente(
-        state.usuarios,
+      const usuarioEncontrado = logarService(
         action.payload.emailOuCpf,
         action.payload.senha
       );
@@ -42,21 +41,11 @@ const usuarioSlice = createSlice({
       state.usuarioLogado = novoUsuario;
     },
     alterarUsuario: (state, action: PayloadAction<Partial<Usuario>>) => {
-      Object.assign(state.usuarioLogado as Usuario, action.payload);
-      const idAtual = state.usuarioLogado!.id;
-      const index =
-        state.usuarios.findIndex(usuario => usuario.id === idAtual);
-      Object.assign(state.usuarios[index], action.payload);
-    },
-    excluirUsuario: (state, action: PayloadAction<Usuario['id']>) => {
-      const novoArrayDeUsuarios = 
-        state.usuarios.filter(usuario => usuario.id !== action.payload);
-      state.usuarioLogado = undefined;
-      state.usuarios = novoArrayDeUsuarios;
+      Object.assign(state, { usuarioLogado: action.payload });
     }
   },
 });
 
-export const { logar, deslogar, cadastrar, alterarUsuario, excluirUsuario } = usuarioSlice.actions;
+export const { logar, deslogar, cadastrar, alterarUsuario } = usuarioSlice.actions;
 
 export default usuarioSlice.reducer;
